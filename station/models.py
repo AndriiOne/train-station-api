@@ -40,3 +40,26 @@ class Route(models.Model):
 
     def __str__(self):
         return f"{self.source.name} → {self.destination.name}"
+
+
+class TrainType(models.Model):
+    name = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.name
+
+
+class Train(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+    cargo_num = models.PositiveIntegerField()
+    places_in_cargo = models.PositiveIntegerField()
+    train_type = models.ForeignKey(
+        TrainType, on_delete=models.PROTECT, related_name="trains"
+    )
+
+    @property
+    def capacity(self):
+        return self.cargo_num * self.places_in_cargo
+
+    def __str__(self):
+        return self.name
