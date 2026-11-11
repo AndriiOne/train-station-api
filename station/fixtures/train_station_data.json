@@ -1,0 +1,310 @@
+[
+  {
+    "model": "station.station",
+    "pk": 1,
+    "fields": {
+      "name": "Kyiv-Pasazhyrskyi",
+      "latitude": 50.4405,
+      "longitude": 30.489
+    }
+  },
+  {
+    "model": "station.station",
+    "pk": 2,
+    "fields": {
+      "name": "Lviv",
+      "latitude": 49.8394,
+      "longitude": 23.9944
+    }
+  },
+  {
+    "model": "station.station",
+    "pk": 3,
+    "fields": {
+      "name": "Odesa-Holovna",
+      "latitude": 46.4683,
+      "longitude": 30.7417
+    }
+  },
+  {
+    "model": "station.station",
+    "pk": 4,
+    "fields": {
+      "name": "Kharkiv-Pasazhyrskyi",
+      "latitude": 49.9897,
+      "longitude": 36.2059
+    }
+  },
+  {
+    "model": "station.station",
+    "pk": 5,
+    "fields": {
+      "name": "Dnipro-Holovnyi",
+      "latitude": 48.4775,
+      "longitude": 35.0094
+    }
+  },
+  {
+    "model": "station.station",
+    "pk": 6,
+    "fields": {
+      "name": "Uzhhorod",
+      "latitude": 48.6142,
+      "longitude": 22.3036
+    }
+  },
+  {
+    "model": "station.route",
+    "pk": 1,
+    "fields": {
+      "source": 1,
+      "destination": 2,
+      "distance": 540
+    }
+  },
+  {
+    "model": "station.route",
+    "pk": 2,
+    "fields": {
+      "source": 2,
+      "destination": 1,
+      "distance": 540
+    }
+  },
+  {
+    "model": "station.route",
+    "pk": 3,
+    "fields": {
+      "source": 1,
+      "destination": 3,
+      "distance": 660
+    }
+  },
+  {
+    "model": "station.route",
+    "pk": 4,
+    "fields": {
+      "source": 1,
+      "destination": 4,
+      "distance": 490
+    }
+  },
+  {
+    "model": "station.route",
+    "pk": 5,
+    "fields": {
+      "source": 5,
+      "destination": 2,
+      "distance": 980
+    }
+  },
+  {
+    "model": "station.route",
+    "pk": 6,
+    "fields": {
+      "source": 2,
+      "destination": 6,
+      "distance": 270
+    }
+  },
+  {
+    "model": "station.traintype",
+    "pk": 1,
+    "fields": {
+      "name": "Intercity+"
+    }
+  },
+  {
+    "model": "station.traintype",
+    "pk": 2,
+    "fields": {
+      "name": "Intercity"
+    }
+  },
+  {
+    "model": "station.traintype",
+    "pk": 3,
+    "fields": {
+      "name": "Night Express"
+    }
+  },
+  {
+    "model": "station.traintype",
+    "pk": 4,
+    "fields": {
+      "name": "Regional"
+    }
+  },
+  {
+    "model": "station.train",
+    "pk": 1,
+    "fields": {
+      "name": "Intercity+ 743",
+      "cargo_num": 9,
+      "places_in_cargo": 64,
+      "train_type": 1
+    }
+  },
+  {
+    "model": "station.train",
+    "pk": 2,
+    "fields": {
+      "name": "Intercity 715",
+      "cargo_num": 6,
+      "places_in_cargo": 56,
+      "train_type": 2
+    }
+  },
+  {
+    "model": "station.train",
+    "pk": 3,
+    "fields": {
+      "name": "Night Express 91",
+      "cargo_num": 15,
+      "places_in_cargo": 36,
+      "train_type": 3
+    }
+  },
+  {
+    "model": "station.train",
+    "pk": 4,
+    "fields": {
+      "name": "Regional 812",
+      "cargo_num": 4,
+      "places_in_cargo": 80,
+      "train_type": 4
+    }
+  },
+  {
+    "model": "station.crew",
+    "pk": 1,
+    "fields": {
+      "first_name": "Olena",
+      "last_name": "Kovalenko"
+    }
+  },
+  {
+    "model": "station.crew",
+    "pk": 2,
+    "fields": {
+      "first_name": "Andrii",
+      "last_name": "Melnyk"
+    }
+  },
+  {
+    "model": "station.crew",
+    "pk": 3,
+    "fields": {
+      "first_name": "Iryna",
+      "last_name": "Shevchuk"
+    }
+  },
+  {
+    "model": "station.crew",
+    "pk": 4,
+    "fields": {
+      "first_name": "Taras",
+      "last_name": "Bondar"
+    }
+  },
+  {
+    "model": "station.crew",
+    "pk": 5,
+    "fields": {
+      "first_name": "Mariia",
+      "last_name": "Tkachenko"
+    }
+  },
+  {
+    "model": "station.crew",
+    "pk": 6,
+    "fields": {
+      "first_name": "Oleh",
+      "last_name": "Hnatiuk"
+    }
+  },
+  {
+    "model": "station.journey",
+    "pk": 1,
+    "fields": {
+      "route": 1,
+      "train": 1,
+      "departure_time": "2026-11-20T07:00:00Z",
+      "arrival_time": "2026-11-20T12:05:00Z",
+      "crew": [
+        1,
+        2
+      ]
+    }
+  },
+  {
+    "model": "station.journey",
+    "pk": 2,
+    "fields": {
+      "route": 2,
+      "train": 1,
+      "departure_time": "2026-11-20T15:30:00Z",
+      "arrival_time": "2026-11-20T20:40:00Z",
+      "crew": [
+        1,
+        2
+      ]
+    }
+  },
+  {
+    "model": "station.journey",
+    "pk": 3,
+    "fields": {
+      "route": 3,
+      "train": 3,
+      "departure_time": "2026-11-21T20:10:00Z",
+      "arrival_time": "2026-11-22T06:30:00Z",
+      "crew": [
+        3,
+        4,
+        5
+      ]
+    }
+  },
+  {
+    "model": "station.journey",
+    "pk": 4,
+    "fields": {
+      "route": 4,
+      "train": 2,
+      "departure_time": "2026-11-22T06:45:00Z",
+      "arrival_time": "2026-11-22T11:50:00Z",
+      "crew": [
+        5,
+        6
+      ]
+    }
+  },
+  {
+    "model": "station.journey",
+    "pk": 5,
+    "fields": {
+      "route": 5,
+      "train": 3,
+      "departure_time": "2026-11-23T18:00:00Z",
+      "arrival_time": "2026-11-24T08:20:00Z",
+      "crew": [
+        3,
+        4
+      ]
+    }
+  },
+  {
+    "model": "station.journey",
+    "pk": 6,
+    "fields": {
+      "route": 6,
+      "train": 4,
+      "departure_time": "2026-11-24T09:15:00Z",
+      "arrival_time": "2026-11-24T14:00:00Z",
+      "crew": [
+        6
+      ]
+    }
+  }
+]
