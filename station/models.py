@@ -22,7 +22,7 @@ class Route(models.Model):
 
     @staticmethod
     def validate_source_not_equal_to_destination(
-            source, destination, error_to_raise
+        source, destination, error_to_raise
     ):
         if source.id == destination.id:
             raise error_to_raise(
@@ -63,3 +63,48 @@ class Train(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class Crew(models.Model):
+    first_name = models.CharField(max_length=100)
+    last_name = models.CharField(max_length=100)
+
+    def __str__(self):
+        return f"{self.first_name} {self.last_name}"
+
+
+class Journey(models.Model):
+    route = models.ForeignKey(
+        Route, on_delete=models.PROTECT, related_name="journeys"
+    )
+    train = models.ForeignKey(
+        Train, on_delete=models.PROTECT, related_name="journeys"
+    )
+    departure_time = models.DateTimeField()
+    arrival_time = models.DateTimeField()
+    crew = models.ManyToManyField(Crew, related_name="journeys")
+
+    @staticmethod
+    def validate_departure_earlier_than_arrival_time(
+        departure_time, arrival_time, error_to_raise
+    ):
+        if departure_time >= arrival_time:
+            raise error_to_raise(
+                {
+                    "arrival_time": (
+                        "Departure time must be earlier than arrival time."
+                    ),
+                }
+            )
+
+    def clean(self):
+        Journey.validate_departure_earlier_than_arrival_time(
+            self.departure_time, self.arrival_time, ValidationError
+        )
+
+    def save(self, *args, **kwargs) -> None:
+        self.full_clean()
+        return super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.route} ({self.departure_time})"
