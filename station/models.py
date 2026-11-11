@@ -1,5 +1,7 @@
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.conf import settings
+from django.db.models import UniqueConstraint
 
 
 class Station(models.Model):
@@ -108,3 +110,70 @@ class Journey(models.Model):
 
     def __str__(self):
         return f"{self.route} ({self.departure_time})"
+
+
+class Order(models.Model):
+    created_at = models.DateTimeField(auto_now_add=True)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="orders"
+    )
+
+    def __str__(self):
+        return str(self.created_at)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+
+class Ticket(models.Model):
+    cargo = models.PositiveIntegerField()
+    seat = models.PositiveIntegerField()
+    journey = models.ForeignKey(
+        Journey, on_delete=models.PROTECT, related_name="tickets"
+    )
+    order = models.ForeignKey(
+        Order, on_delete=models.CASCADE, related_name="tickets"
+    )
+
+    @staticmethod
+    def validate_ticket(cargo, seat, train, error_to_raise):
+        for ticket_attr_value, ticket_attr_name, train_attr_name in [
+            (cargo, "cargo", "cargo_num"),
+            (seat, "seat", "places_in_cargo"),
+        ]:
+            count_attrs = getattr(train, train_attr_name)
+            if not (1 <= ticket_attr_value <= count_attrs):
+                raise error_to_raise(
+                    {
+                        ticket_attr_name: f"{ticket_attr_name} "
+                        f"number must be in available range: "
+                        f"(1, {train_attr_name}): "
+                        f"(1, {count_attrs})"
+                    }
+                )
+
+    def clean(self):
+        Ticket.validate_ticket(
+            self.cargo,
+            self.seat,
+            self.journey.train,
+            ValidationError,
+        )
+
+    def save(self, *args, **kwargs) -> None:
+        self.full_clean()
+        return super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.journey}: cargo: {self.cargo}, seat: {self.seat}"
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["journey", "seat", "cargo"],
+                name="unique_ticket_journey_cargo_seat",
+            )
+        ]
+        ordering = ["journey", "cargo", "seat"]
