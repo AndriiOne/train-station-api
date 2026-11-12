@@ -6,6 +6,7 @@ from station.models import (
     Station,
     TrainType,
     Crew,
+    Train,
     Route,
     Journey,
     Order,
@@ -29,3 +30,26 @@ class CrewSerializer(serializers.ModelSerializer):
     class Meta:
         model = Crew
         fields = ("id", "first_name", "last_name")
+
+
+class TrainSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Train
+        fields = (
+            "id",
+            "name",
+            "train_type",
+            "capacity",
+            "cargo_num",
+            "places_in_cargo",
+        )
+
+
+class TrainListSerializer(serializers.ModelSerializer):
+    train_type = serializers.SlugRelatedField(
+        many=False, read_only=True, slug_field="name"
+    )
+
+    class Meta:
+        model = Train
+        fields = ("id", "name", "train_type", "capacity")

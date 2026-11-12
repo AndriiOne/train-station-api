@@ -1,13 +1,20 @@
-from rest_framework import viewsets, mixins, permissions
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import extend_schema, OpenApiParameter
+from rest_framework import viewsets, mixins
 
 from station.models import (
     Station,
-    TrainType, Crew,
+    TrainType,
+    Crew,
+    Train,
 )
 from station.permissions import IsAdminOrIfAuthenticatedReadOnly
 from station.serializers import (
     StationSerializer,
-    TrainTypeSerializer, CrewSerializer,
+    TrainTypeSerializer,
+    CrewSerializer,
+    TrainSerializer,
+    TrainListSerializer,
 )
 
 
@@ -39,3 +46,26 @@ class CrewViewSet(
     queryset = Crew.objects.all()
     serializer_class = CrewSerializer
     permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
+
+
+class TrainViewSet(
+    mixins.ListModelMixin,
+    mixins.CreateModelMixin,
+    mixins.RetrieveModelMixin,
+    viewsets.GenericViewSet,
+):
+    queryset = Train.objects.select_related("train_type")
+    serializer_class = TrainSerializer
+    permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
+
+    def get_serializer_class(self):
+        if self.action == "list":
+            return TrainListSerializer
+
+        if self.action == "create":
+            return TrainSerializer
+
+        if self.action == "retrieve":
+            return TrainSerializer
+
+        return TrainSerializer
