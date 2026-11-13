@@ -6,7 +6,7 @@ from station.models import (
     Station,
     TrainType,
     Crew,
-    Train,
+    Train, Route,
 )
 from station.permissions import IsAdminOrIfAuthenticatedReadOnly
 from station.serializers import (
@@ -14,7 +14,7 @@ from station.serializers import (
     TrainTypeSerializer,
     CrewSerializer,
     TrainSerializer,
-    TrainListSerializer,
+    TrainListSerializer, RouteSerializer, RouteListSerializer, RouteDetailSerializer,
 )
 
 
@@ -69,3 +69,26 @@ class TrainViewSet(
             return TrainSerializer
 
         return TrainSerializer
+
+
+class RouteViewSet(
+    mixins.ListModelMixin,
+    mixins.RetrieveModelMixin,
+    mixins.CreateModelMixin,
+    viewsets.GenericViewSet,
+):
+    queryset = Route.objects.select_related("source", "destination")
+    serializer_class = RouteSerializer
+    permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
+
+    def get_serializer_class(self):
+        if self.action == "list":
+            return RouteListSerializer
+
+        if self.action == "create":
+            return RouteSerializer
+
+        if self.action == "retrieve":
+            return RouteDetailSerializer
+
+        return RouteSerializer
