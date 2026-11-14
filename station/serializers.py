@@ -1,3 +1,4 @@
+from email.policy import default
 from os import setsid
 
 from django.db import transaction
@@ -118,6 +119,7 @@ class JourneySerializer(serializers.ModelSerializer):
 class JourneyListSerializer(serializers.ModelSerializer):
     train_name = serializers.CharField(source="train.name", read_only=True)
     route = serializers.StringRelatedField(read_only=True)
+    tickets_available = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Journey
@@ -127,6 +129,7 @@ class JourneyListSerializer(serializers.ModelSerializer):
             "route",
             "arrival_time",
             "departure_time",
+            "tickets_available",
         )
 
 

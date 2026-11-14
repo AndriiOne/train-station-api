@@ -1,8 +1,7 @@
-from django.db.models import Model
-from drf_spectacular.types import OpenApiTypes
-from drf_spectacular.utils import extend_schema, OpenApiParameter
+from django.db.models import F, Count
 from rest_framework import viewsets, mixins
 
+from station import serializers
 from station.models import (
     Station,
     TrainType,
@@ -104,9 +103,18 @@ class RouteViewSet(
 
 
 class JourneyViewSet(viewsets.ModelViewSet):
-    queryset = Journey.objects.select_related(
-        "route__source", "route__destination", "train__train_type"
-    ).prefetch_related("crew")
+    queryset = (
+        Journey.objects.select_related(
+            "route__source", "route__destination", "train__train_type"
+        )
+        .prefetch_related("crew")
+        .annotate(
+            tickets_available=(
+                (F("train__places_in_cargo") * F("train__cargo_num"))
+                - Count("tickets")
+            )
+        )
+    )
     serializer_class = JourneySerializer
     permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
 
