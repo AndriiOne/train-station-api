@@ -1,6 +1,7 @@
 from django.db.models import F, Count
-from rest_framework import viewsets, mixins
+from rest_framework import viewsets, mixins, pagination
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.pagination import PageNumberPagination
 
 from station.models import (
     Station,
@@ -129,12 +130,19 @@ class JourneyViewSet(viewsets.ModelViewSet):
         return JourneySerializer
 
 
+class OrderPagination(pagination.PageNumberPagination):
+    page_size = 5
+    page_size_query_param = "page_size"
+    max_page_size = 100
+
+
 class OrderViewSet(
     mixins.ListModelMixin,
     mixins.CreateModelMixin,
     viewsets.GenericViewSet,
 ):
     queryset = Order.objects.all()
+    pagination_class = OrderPagination
     serializer_class = OrderSerializer
     permission_classes = (IsAuthenticated,)
 
