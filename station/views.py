@@ -1,3 +1,4 @@
+from django.db.models import Model
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework import viewsets, mixins
@@ -6,7 +7,9 @@ from station.models import (
     Station,
     TrainType,
     Crew,
-    Train, Route,
+    Train,
+    Route,
+    Journey,
 )
 from station.permissions import IsAdminOrIfAuthenticatedReadOnly
 from station.serializers import (
@@ -14,7 +17,13 @@ from station.serializers import (
     TrainTypeSerializer,
     CrewSerializer,
     TrainSerializer,
-    TrainListSerializer, RouteSerializer, RouteListSerializer, RouteDetailSerializer,
+    TrainListSerializer,
+    RouteSerializer,
+    RouteListSerializer,
+    RouteDetailSerializer,
+    JourneySerializer,
+    JourneyListSerializer,
+    JourneyDetailSerializer,
 )
 
 
@@ -92,3 +101,20 @@ class RouteViewSet(
             return RouteDetailSerializer
 
         return RouteSerializer
+
+
+class JourneyViewSet(viewsets.ModelViewSet):
+    queryset = Journey.objects.select_related(
+        "route__source", "route__destination", "train__train_type"
+    ).prefetch_related("crew")
+    serializer_class = JourneySerializer
+    permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
+
+    def get_serializer_class(self):
+        if self.action == "list":
+            return JourneyListSerializer
+        if self.action == "create":
+            return JourneySerializer
+        if self.action == "retrieve":
+            return JourneyDetailSerializer
+        return JourneySerializer

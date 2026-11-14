@@ -1,3 +1,5 @@
+from os import setsid
+
 from django.db import transaction
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
@@ -59,9 +61,7 @@ class RouteSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         data = super(RouteSerializer, self).validate(attrs=attrs)
         Route.validate_source_not_equal_to_destination(
-            attrs["source"],
-            attrs["destination"],
-            ValidationError
+            attrs["source"], attrs["destination"], ValidationError
         )
         return data
 
@@ -69,19 +69,16 @@ class RouteSerializer(serializers.ModelSerializer):
         model = Route
         fields = ("id", "source", "destination", "distance")
 
+
 class RouteListSerializer(serializers.ModelSerializer):
-    source = serializers.SlugRelatedField(
-        read_only=True, slug_field="name"
-    )
+    source = serializers.SlugRelatedField(read_only=True, slug_field="name")
     destination = serializers.SlugRelatedField(
         read_only=True, slug_field="name"
     )
 
     class Meta:
         model = Route
-        fields = (
-            "id", "source", "destination", "distance"
-        )
+        fields = ("id", "source", "destination", "distance")
 
 
 class RouteDetailSerializer(serializers.ModelSerializer):
@@ -95,4 +92,58 @@ class RouteDetailSerializer(serializers.ModelSerializer):
             "source",
             "destination",
             "distance",
+        )
+
+
+class JourneySerializer(serializers.ModelSerializer):
+    def validate(self, attrs):
+        data = super(JourneySerializer, self).validate(attrs=attrs)
+        Journey.validate_departure_earlier_than_arrival_time(
+            attrs["departure_time"], attrs["arrival_time"], ValidationError
+        )
+        return data
+
+    class Meta:
+        model = Journey
+        fields = (
+            "id",
+            "route",
+            "train",
+            "departure_time",
+            "arrival_time",
+            "crew",
+        )
+
+
+class JourneyListSerializer(serializers.ModelSerializer):
+    train_name = serializers.CharField(source="train.name", read_only=True)
+    route = serializers.StringRelatedField(read_only=True)
+
+    class Meta:
+        model = Journey
+        fields = (
+            "id",
+            "train_name",
+            "route",
+            "arrival_time",
+            "departure_time",
+        )
+
+
+class JourneyDetailSerializer(serializers.ModelSerializer):
+    route = RouteListSerializer(read_only=True)
+    train = TrainListSerializer(read_only=True)
+    crew = serializers.SlugRelatedField(
+        many=True, read_only=True, slug_field="full_name"
+    )
+
+    class Meta:
+        model = Journey
+        fields = (
+            "id",
+            "route",
+            "train",
+            "crew",
+            "arrival_time",
+            "departure_time",
         )
