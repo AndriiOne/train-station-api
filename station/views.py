@@ -141,7 +141,7 @@ class OrderViewSet(
     mixins.CreateModelMixin,
     viewsets.GenericViewSet,
 ):
-    queryset = Order.objects.all()
+    queryset = Order.objects.prefetch_related("tickets")
     pagination_class = OrderPagination
     serializer_class = OrderSerializer
     permission_classes = (IsAuthenticated,)
