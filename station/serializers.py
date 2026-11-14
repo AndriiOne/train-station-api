@@ -1,3 +1,4 @@
+from django.db import transaction
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
@@ -102,6 +103,27 @@ class TicketSeatsSerializer(serializers.ModelSerializer):
         )
 
 
+class TicketSerializer(serializers.ModelSerializer):
+    def validate(self, attrs):
+        data = super().validate(attrs=attrs)
+        Ticket.validate_ticket(
+            attrs["cargo"],
+            attrs["seat"],
+            attrs["journey"].train,
+            ValidationError,
+        )
+        return data
+
+    class Meta:
+        model = Ticket
+        fields = (
+            "id",
+            "cargo",
+            "seat",
+            "journey",
+        )
+
+
 class JourneySerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         data = super(JourneySerializer, self).validate(attrs=attrs)
@@ -160,3 +182,23 @@ class JourneyDetailSerializer(serializers.ModelSerializer):
             "departure_time",
             "taken_places",
         )
+
+
+class OrderSerializer(serializers.ModelSerializer):
+    tickets = TicketSerializer(many=True, allow_empty=False)
+
+    class Meta:
+        model = Order
+        fields = (
+            "id",
+            "tickets",
+            "created_at",
+        )
+
+    def create(self, validated_data):
+        with transaction.atomic():
+            tickets = validated_data.pop("tickets")
+            order = Order.objects.create(**validated_data)
+            for ticket in tickets:
+                Ticket.objects.create(order=order, **ticket)
+            return order

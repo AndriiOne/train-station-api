@@ -1,14 +1,14 @@
 from django.db.models import F, Count
 from rest_framework import viewsets, mixins
+from rest_framework.permissions import IsAuthenticated
 
-from station import serializers
 from station.models import (
     Station,
     TrainType,
     Crew,
     Train,
     Route,
-    Journey,
+    Journey, Order,
 )
 from station.permissions import IsAdminOrIfAuthenticatedReadOnly
 from station.serializers import (
@@ -23,6 +23,7 @@ from station.serializers import (
     JourneySerializer,
     JourneyListSerializer,
     JourneyDetailSerializer,
+    OrderSerializer,
 )
 
 
@@ -126,3 +127,19 @@ class JourneyViewSet(viewsets.ModelViewSet):
         if self.action == "retrieve":
             return JourneyDetailSerializer
         return JourneySerializer
+
+
+class OrderViewSet(
+    mixins.ListModelMixin,
+    mixins.CreateModelMixin,
+    viewsets.GenericViewSet,
+):
+    queryset = Order.objects.all()
+    serializer_class = OrderSerializer
+    permission_classes = (IsAuthenticated,)
+
+    def get_queryset(self):
+        return self.queryset.filter(user=self.request.user)
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
