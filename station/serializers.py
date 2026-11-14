@@ -1,7 +1,3 @@
-from email.policy import default
-from os import setsid
-
-from django.db import transaction
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
@@ -96,6 +92,16 @@ class RouteDetailSerializer(serializers.ModelSerializer):
         )
 
 
+class TicketSeatsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Ticket
+        fields = (
+            "id",
+            "cargo",
+            "seat",
+        )
+
+
 class JourneySerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         data = super(JourneySerializer, self).validate(attrs=attrs)
@@ -139,6 +145,9 @@ class JourneyDetailSerializer(serializers.ModelSerializer):
     crew = serializers.SlugRelatedField(
         many=True, read_only=True, slug_field="full_name"
     )
+    taken_places = TicketSeatsSerializer(
+        source="tickets", read_only=True, many=True
+    )
 
     class Meta:
         model = Journey
@@ -149,4 +158,5 @@ class JourneyDetailSerializer(serializers.ModelSerializer):
             "crew",
             "arrival_time",
             "departure_time",
+            "taken_places",
         )
