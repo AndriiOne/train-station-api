@@ -14,10 +14,20 @@ from station.models import (
 )
 
 
+class StationImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Station
+        fields = (
+            "id",
+            "image",
+        )
+
+
 class StationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Station
-        fields = ("id", "name", "latitude", "longitude")
+        fields = ("id", "name", "latitude", "longitude", "image")
+        read_only_fields = ("image",)
 
 
 class TrainTypeSerializer(serializers.ModelSerializer):
