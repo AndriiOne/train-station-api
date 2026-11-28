@@ -1,0 +1,110 @@
+digraph TrainStation {
+    graph [rankdir=LR, fontname="Helvetica", fontsize=20, labelloc=t,
+           label="Train Station API - database structure\n\n",
+           nodesep=0.6, ranksep=1.1, pad=0.4, bgcolor="white"];
+    node  [shape=plaintext, fontname="Helvetica", fontsize=12];
+    edge  [fontname="Helvetica", fontsize=11, color="#444444",
+           arrowhead=none, arrowtail=diamond, dir=both];
+
+    Station [label=<
+<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="5" BGCOLOR="#ffffff">
+<TR><TD BGCOLOR="#dbe8f5"><B>Station</B></TD></TR>
+<TR><TD ALIGN="LEFT">id: int</TD></TR>
+<TR><TD ALIGN="LEFT">name: str</TD></TR>
+<TR><TD ALIGN="LEFT">latitude: float</TD></TR>
+<TR><TD ALIGN="LEFT">longitude: float</TD></TR>
+<TR><TD ALIGN="LEFT">image: ImageField (nullable)</TD></TR>
+</TABLE>>];
+
+    Route [label=<
+<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="5" BGCOLOR="#ffffff">
+<TR><TD BGCOLOR="#dbe8f5"><B>Route</B></TD></TR>
+<TR><TD ALIGN="LEFT">id: int</TD></TR>
+<TR><TD ALIGN="LEFT">source: Station (FK)</TD></TR>
+<TR><TD ALIGN="LEFT">destination: Station (FK)</TD></TR>
+<TR><TD ALIGN="LEFT">distance: int</TD></TR>
+<TR><TD ALIGN="LEFT"><I>source != destination</I></TD></TR>
+</TABLE>>];
+
+    TrainType [label=<
+<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="5" BGCOLOR="#ffffff">
+<TR><TD BGCOLOR="#dbe8f5"><B>TrainType</B></TD></TR>
+<TR><TD ALIGN="LEFT">id: int</TD></TR>
+<TR><TD ALIGN="LEFT">name: str</TD></TR>
+</TABLE>>];
+
+    Train [label=<
+<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="5" BGCOLOR="#ffffff">
+<TR><TD BGCOLOR="#dbe8f5"><B>Train</B></TD></TR>
+<TR><TD ALIGN="LEFT">id: int</TD></TR>
+<TR><TD ALIGN="LEFT">name: str (unique)</TD></TR>
+<TR><TD ALIGN="LEFT">cargo_num: int</TD></TR>
+<TR><TD ALIGN="LEFT">places_in_cargo: int</TD></TR>
+<TR><TD ALIGN="LEFT">train_type: TrainType (FK)</TD></TR>
+<TR><TD ALIGN="LEFT">image: ImageField (nullable)</TD></TR>
+</TABLE>>];
+
+    Crew [label=<
+<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="5" BGCOLOR="#ffffff">
+<TR><TD BGCOLOR="#dbe8f5"><B>Crew</B></TD></TR>
+<TR><TD ALIGN="LEFT">id: int</TD></TR>
+<TR><TD ALIGN="LEFT">first_name: str</TD></TR>
+<TR><TD ALIGN="LEFT">last_name: str</TD></TR>
+</TABLE>>];
+
+    Journey [label=<
+<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="5" BGCOLOR="#ffffff">
+<TR><TD BGCOLOR="#dbe8f5"><B>Journey</B></TD></TR>
+<TR><TD ALIGN="LEFT">id: int</TD></TR>
+<TR><TD ALIGN="LEFT">route: Route (FK)</TD></TR>
+<TR><TD ALIGN="LEFT">train: Train (FK)</TD></TR>
+<TR><TD ALIGN="LEFT">departure_time: datetime</TD></TR>
+<TR><TD ALIGN="LEFT">arrival_time: datetime</TD></TR>
+<TR><TD ALIGN="LEFT">crew: Crew (M2M)</TD></TR>
+<TR><TD ALIGN="LEFT"><I>departure_time &lt; arrival_time</I></TD></TR>
+</TABLE>>];
+
+    Ticket [label=<
+<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="5" BGCOLOR="#ffffff">
+<TR><TD BGCOLOR="#dbe8f5"><B>Ticket</B></TD></TR>
+<TR><TD ALIGN="LEFT">id: int</TD></TR>
+<TR><TD ALIGN="LEFT">cargo: int</TD></TR>
+<TR><TD ALIGN="LEFT">seat: int</TD></TR>
+<TR><TD ALIGN="LEFT">journey: Journey (FK)</TD></TR>
+<TR><TD ALIGN="LEFT">order: Order (FK)</TD></TR>
+<TR><TD ALIGN="LEFT"><I>unique (journey, cargo, seat)</I></TD></TR>
+</TABLE>>];
+
+    Order [label=<
+<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="5" BGCOLOR="#ffffff">
+<TR><TD BGCOLOR="#dbe8f5"><B>Order</B></TD></TR>
+<TR><TD ALIGN="LEFT">id: int</TD></TR>
+<TR><TD ALIGN="LEFT">created_at: datetime</TD></TR>
+<TR><TD ALIGN="LEFT">user: User (FK)</TD></TR>
+</TABLE>>];
+
+    User [label=<
+<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="5" BGCOLOR="#ffffff">
+<TR><TD BGCOLOR="#f5e6d3"><B>User</B> (custom)</TD></TR>
+<TR><TD ALIGN="LEFT">id: int</TD></TR>
+<TR><TD ALIGN="LEFT">email: str (unique, login)</TD></TR>
+<TR><TD ALIGN="LEFT">password: str (hashed)</TD></TR>
+<TR><TD ALIGN="LEFT">is_staff: bool</TD></TR>
+<TR><TD ALIGN="LEFT"><I>other AbstractUser fields,</I></TD></TR>
+<TR><TD ALIGN="LEFT"><I>no username field</I></TD></TR>
+</TABLE>>];
+
+    // "one" side carries the diamond (tail), "many" side is plain
+    Station  -> Route     [taillabel="1", headlabel="n (source)"];
+    Station  -> Route     [taillabel="1", headlabel="n (destination)"];
+    TrainType -> Train    [taillabel="1", headlabel="n"];
+    Route    -> Journey   [taillabel="1", headlabel="n"];
+    Train    -> Journey   [taillabel="1", headlabel="n"];
+    Crew     -> Journey   [taillabel="n", headlabel="n", arrowtail=none, style=dashed, label="M2M"];
+    Journey  -> Ticket    [taillabel="1", headlabel="n"];
+    Order    -> Ticket    [taillabel="1", headlabel="n"];
+    User     -> Order     [taillabel="1", headlabel="n"];
+
+    {rank=same; Station; TrainType; Crew; User;}
+    {rank=same; Route; Train; Order;}
+}
