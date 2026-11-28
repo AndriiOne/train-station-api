@@ -62,6 +62,13 @@ class TrainType(models.Model):
         return self.name
 
 
+def train_image_file_path(instance, filename):
+    _, extension = os.path.splitext(filename)
+    filename = f"{slugify(instance.name)}-{uuid.uuid4()}{extension}"
+
+    return os.path.join("uploads/trains/", filename)
+
+
 class Train(models.Model):
     name = models.CharField(max_length=100, unique=True)
     cargo_num = models.PositiveIntegerField()
@@ -69,6 +76,7 @@ class Train(models.Model):
     train_type = models.ForeignKey(
         TrainType, on_delete=models.PROTECT, related_name="trains"
     )
+    image = models.ImageField(null=True, upload_to=train_image_file_path)
 
     @property
     def capacity(self):
