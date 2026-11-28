@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.db.models import F, Count
 from rest_framework import viewsets, mixins, pagination
 from rest_framework.permissions import IsAuthenticated
@@ -9,7 +11,8 @@ from station.models import (
     Crew,
     Train,
     Route,
-    Journey, Order,
+    Journey,
+    Order,
 )
 from station.permissions import IsAdminOrIfAuthenticatedReadOnly
 from station.serializers import (
@@ -119,6 +122,26 @@ class JourneyViewSet(viewsets.ModelViewSet):
     )
     serializer_class = JourneySerializer
     permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
+
+    def get_queryset(self):
+        queryset = self.queryset
+        date = self.request.query_params.get("date")
+        source = self.request.query_params.get("source")
+        destination = self.request.query_params.get("destination")
+
+        if date:
+            date = datetime.strptime(date, "%Y-%m-%d").date()
+            queryset = queryset.filter(departure_time__date=date)
+
+        if source:
+            queryset = queryset.filter(route__source__name__icontains=source)
+
+        if destination:
+            queryset = queryset.filter(
+                route__destination__name__icontains=destination
+            )
+
+        return queryset
 
     def get_serializer_class(self):
         if self.action == "list":
